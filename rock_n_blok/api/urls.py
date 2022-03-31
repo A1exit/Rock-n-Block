@@ -4,5 +4,6 @@ from .views import create, list
 
 urlpatterns = [
     path('create/', create),
-    path('list/', list)
+    path('list/', list),
+    path('total_supply/')
 ]
