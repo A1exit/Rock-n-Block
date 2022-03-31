@@ -1,10 +1,13 @@
 import random
 import string
+import web3
+import os
 
 from django.http import QueryDict
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 from .models import Token
 from .serializers import TokenSerializer
@@ -38,3 +41,10 @@ def list(request):
     tokens = Token.objects.all()
     serializer = TokenSerializer(tokens, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def total_supply(request):
+    contract_address = os.getenv('CONTRACT_ADDRESS')
+    myContract = web3.eth.contract(address=contract_address)
+    return HttpResponse(myContract)
