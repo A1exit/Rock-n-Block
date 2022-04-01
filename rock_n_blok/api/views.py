@@ -2,6 +2,9 @@ import random
 import string
 import web3
 import os
+from web3 import Web3, HTTPProvider
+from web3.middleware import geth_poa_middleware
+import json
 
 from django.http import QueryDict
 from rest_framework import status
@@ -45,6 +48,11 @@ def list(request):
 
 @api_view(['GET'])
 def total_supply(request):
-    contract_address = os.getenv('CONTRACT_ADDRESS')
-    myContract = web3.eth.contract(address=contract_address)
-    return HttpResponse(myContract)
+    infura_key = os.getenv('INFURA_KEY')
+    w3 = Web3(Web3.HTTPProvider(f'https://rinkeby.infura.io/v3/{infura_key}'))
+    with open('api/abi.json') as f:
+        contract_abi = json.load(f)
+    my_contract = w3.eth.contract(address=os.getenv('CONTRACT_ADDRESS'),
+                                  abi=contract_abi)
+    return HttpResponse('result:'
+                        f'{my_contract.functions.totalSupply().call()}')
