@@ -64,7 +64,6 @@ INFURA_KEY=
 PRIVATE_KEY=
 METAMASK_KEY=
 ```
-* в терминале ввести xcode-select --install, если не устанавливается библиотека web3
 * перейти в директорию с файлом docker-compose.yaml
 * ввести в терминале: 
 ```
