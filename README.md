@@ -50,20 +50,7 @@ API обращается к контракту в блокчейне и выда
 Что бы протестировать приложение необходимо:
 
 * клонировать репозиторий
-* создать файл .env и вставить в него переменные и добавить к ним необходимые значения
-```
-SECRET_KEY=
-DB_ENGINE=
-DB_NAME=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-DB_HOST=
-DB_PORT=
-CONTRACT_ADDRESS=
-INFURA_KEY=
-PRIVATE_KEY=
-METAMASK_KEY=
-```
+* создать файл .env по шаблону .env.sample
 * перейти в директорию с файлом docker-compose.yaml
 * ввести в терминале: 
 ```

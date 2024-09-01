@@ -1,14 +1,9 @@
-from django.urls import include, path
-from rest_framework.routers import SimpleRouter
+from django.urls import path
 
-from .views import ListTokensViewSet, create, total_supply
-
-router = SimpleRouter()
-
-router.register('list', ListTokensViewSet, basename='list')
+from .views import TokenListAPIView, create_token, get_total_supply
 
 urlpatterns = [
-    path('create/', create),
-    path('total_supply/', total_supply),
-    path('', include(router.urls)),
+    path("create/", create_token),
+    path("total_supply/", get_total_supply),
+    path("list/", TokenListAPIView.as_view()),
 ]
