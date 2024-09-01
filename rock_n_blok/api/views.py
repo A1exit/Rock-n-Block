@@ -26,11 +26,11 @@ def create_token(request):
     Returns:
         Response: JSON with the token data or an error message.
     """
-    unique_hash = generate_random_alphanumeric_string(20)
+    token_unique_hash = generate_random_alphanumeric_string(20)
 
     if isinstance(request.data, QueryDict):
         request.data._mutable = True
-        request.data["unique_hash"] = unique_hash
+        request.data["unique_hash"] = token_unique_hash
 
     serializer = TokenSerializer(data=request.data)
 
@@ -40,18 +40,22 @@ def create_token(request):
                 serializer.save()
 
                 try:
-                    w3 = create_web3_connection()
-                    contract_abi = load_smart_contract_abi(os.path.join(settings.BASE_DIR, "api/abi.json"))
-                    contract = get_smart_contract(w3, settings.CONTRACT_ADDRESS, contract_abi)
-                    tx_hash = send_mint_transaction(
-                        w3, contract, request.data.get("owner"), unique_hash, request.data.get("media_url")
+                    web3_instance = create_web3_connection()
+                    smart_contract_abi = load_smart_contract_abi(os.path.join(settings.BASE_DIR, "api/abi.json"))
+                    smart_contract = get_smart_contract(web3_instance, settings.CONTRACT_ADDRESS, smart_contract_abi)
+                    transaction_hash = send_mint_transaction(
+                        web3_instance,
+                        smart_contract,
+                        request.data.get("owner"),
+                        token_unique_hash,
+                        request.data.get("media_url"),
                     )
                 except Exception as e:
                     return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                token = Token.objects.get(unique_hash=unique_hash)
-                data = {"tx_hash": tx_hash}
-                serializer = TokenSerializer(token, data=data, partial=True)
+                token = Token.objects.get(unique_hash=token_unique_hash)
+                updated_token_data = {"tx_hash": transaction_hash}
+                serializer = TokenSerializer(token, data=updated_token_data, partial=True)
 
                 if serializer.is_valid():
                     serializer.save()
@@ -60,9 +64,7 @@ def create_token(request):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -85,12 +87,12 @@ def get_total_supply(request):
         JsonResponse: JSON with the total supply or an error message.
     """
     try:
-        w3 = create_web3_connection()
-        contract_abi = load_smart_contract_abi(os.path.join(settings.BASE_DIR, "api/abi.json"))
-        contract = get_smart_contract(w3, settings.CONTRACT_ADDRESS, contract_abi)
+        web3_instance = create_web3_connection()
+        smart_contract_abi = load_smart_contract_abi(os.path.join(settings.BASE_DIR, "api/abi.json"))
+        smart_contract = get_smart_contract(web3_instance, settings.CONTRACT_ADDRESS, smart_contract_abi)
 
-        total_supply_value = contract.functions.totalSupply().call()
-        return JsonResponse({"result": total_supply_value}, status=status.HTTP_200_OK)
+        total_token_supply = smart_contract.functions.totalSupply().call()
+        return JsonResponse({"result": total_token_supply}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
