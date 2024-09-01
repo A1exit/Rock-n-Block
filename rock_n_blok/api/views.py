@@ -66,7 +66,7 @@ def create_token(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TokenListAPI(generics.ListAPIView):
+class TokenListAPIView(generics.ListAPIView):
     """
     list of all Token objects stored in the database.
     """
